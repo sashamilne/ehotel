@@ -1,1 +1,4 @@
+com/example/LogoutServlet.class
 com/example/MainServlet.class
+com/example/CustomerLoginServlet.class
+com/example/EmployeeLoginServlet.class
