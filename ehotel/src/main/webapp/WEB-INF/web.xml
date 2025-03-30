@@ -14,7 +14,7 @@
 
     <servlet-mapping>
         <servlet-name>MainServlet</servlet-name>
-        <url-pattern>/main/</url-pattern>
+        <url-pattern>/dbtest/</url-pattern>
     </servlet-mapping>
 
 </web-app>
