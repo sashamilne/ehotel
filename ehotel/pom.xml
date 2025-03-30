@@ -20,6 +20,12 @@
         <version>5.0.0</version>
         <scope>provided</scope>
     </dependency>
+    <!-- PostgreSQL JDBC Driver -->
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>42.5.1</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>ehotel</finalName>
