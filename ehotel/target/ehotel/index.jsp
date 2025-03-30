@@ -46,8 +46,7 @@
     <p>Please select your login type:</p>
 
     <div class="container">
-        <a href="customer-login.jsp" class="btn btn-customer">Customer Login</a>
-        <a href="employee-login.jsp" class="btn btn-employee">Employee Login</a>
+        <a href="login.jsp" class="btn btn-customer">Login</a>
     </div>
 
 </body>
