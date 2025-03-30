@@ -29,7 +29,7 @@
     </form>
 
     <br><br>
-    <a href="signup.jsp">New user? Sign up here</a>
+    <a href="customer-signup.jsp">New user? Sign up here</a>
 
 </body>
 </html>
