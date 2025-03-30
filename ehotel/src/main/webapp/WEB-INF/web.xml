@@ -3,6 +3,7 @@
   <display-name>E-Hotel Web Application</display-name>
   
   <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
