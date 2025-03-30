@@ -48,7 +48,7 @@ public class CustomerLoginServlet extends HttpServlet {
                 session.setAttribute("username", username);
                 response.sendRedirect("welcome.jsp");  // Redirect to welcome page
             } else {
-                response.sendRedirect("login.jsp?error=1");  // Redirect back with error
+                response.sendRedirect("customer-login.jsp?error=1");  // Redirect back with error
             }
 
             rs.close();
@@ -57,7 +57,7 @@ public class CustomerLoginServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("login.jsp?error=2");
+            response.sendRedirect("customer-login.jsp?error=2");
         }
     }
 }

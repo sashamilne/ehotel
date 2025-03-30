@@ -1,20 +1,23 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Login</title>
 </head>
 <body>
     <h2>Employee Login</h2>
-    <form action="employee-dashboard" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
-        
-        <button type="submit">Login</button>
+    <form action="EmployeeLoginServlet" method="post">
+        Username: <input type="text" name="username" required><br>
+        Password: <input type="password" name="password" required><br>
+        <input type="submit" value="Login">
     </form>
+
+    <%-- Display error message if login fails --%>
+    <% 
+        String error = request.getParameter("error");
+        if ("true".equals(error)) {
+    %>
+        <p style="color: red;">Invalid username or password.</p>
+    <% } %>
 </body>
 </html>
