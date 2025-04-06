@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Reservation</title>
+  <link rel="stylesheet" href="/css/styles.css"> <!-- Link to your CSS file -->
+</head>
+<body>
+  <header>
+    <h1>Hotel Reservation</h1>
+    <p>Select a hotel chain and then choose a hotel</p>
+  </header>
+
+  <main>
+    <form id="reservation-form">
+      <!-- Dropdown for selecting hotel chain -->
+      <label for="hotel-chain">Choose a Hotel Chain:</label>
+      <select id="hotel-chain">
+        <option value="">Select a Hotel Chain</option>
+        <!-- Hotel chain options will be dynamically populated here -->
+      </select>
+
+      <!-- Dropdown for selecting hotel based on chain -->
+      <label for="hotel">Choose a Hotel:</label>
+      <select id="hotel">
+        <option value="">Select a Hotel</option>
+      </select>
+
+      <button type="button" id = "view-rooms-btn">View Rooms</button>
+    </form>
+  </main>
+
+  <script>
+    // Fetch the hotel chains dynamically from the server
+    document.addEventListener('DOMContentLoaded', function() {
+    const hotelChainSelect = document.getElementById('hotel-chain');
+    const hotelSelect = document.getElementById('hotel');
+
+    // Fetch and populate hotel chains
+    fetch('/api/hotel-chains')
+        .then(response => response.json())
+        .then(data => {
+            data.hotelChains.forEach(chain => {
+                const option = document.createElement('option');
+                option.value = chain.chain_id;  // Use correct property name
+                option.textContent = chain.chain_name;
+                hotelChainSelect.appendChild(option);
+            });
+        })
+        .catch(err => {
+            console.error('Error fetching hotel chains:', err);
+        });
+
+    // Listen for changes to hotel chain selection
+    hotelChainSelect.addEventListener('change', (event) => {
+        const chainId = event.target.value;
+
+        // Reset hotel dropdown if no chain is selected
+        if (!chainId) {
+            hotelSelect.innerHTML = '<option value="">Select Hotel</option>';
+            return;
+        }
+
+        // Fetch hotels for the selected chain
+        fetch(`/api/hotels_by_chainID/${chainId}`)
+            .then(response => response.json())
+            .then(data => {
+                hotelSelect.innerHTML = '<option value="">Select Hotel</option>';
+                data.hotels.forEach(hotel => {
+                    const option = document.createElement('option');
+                    option.value = hotel.hotel_id;  // Adjust if your field is hotel_id instead of id
+                    option.textContent = hotel.hotel_address;  // Adjust if your field is hotel_name instead of name
+                    hotelSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching hotels:', error);
+            });
+    });
+});
+
+// Handle form submission to redirect with hotel ID
+document.getElementById('view-rooms-btn').addEventListener('click', function(event) {
+    const hotelSelect = document.getElementById('hotel');
+    const selectedHotelId = hotelSelect.value;
+    if (!selectedHotelId) {
+        alert('Please select a hotel.');
+        return;
+    }
+
+    // Redirect to new-reservation.html with the selected hotel ID
+    window.location.href = `/new-reservation.html?hotel_id=${selectedHotelId}`;
+});
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Update Employee Info - eHotel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-section {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #007BFF;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Update Your Information</h2>
+
+    <!-- First Name -->
+    <div class="form-section">
+      <form action="/update-employee/first-name" method="POST">
+        <label for="first-name">First Name</label>
+        <input type="text" id="first-name" name="first_name" required />
+        <button type="submit">Update First Name</button>
+      </form>
+    </div>
+
+    <!-- Last Name -->
+    <div class="form-section">
+      <form action="/update-employee/last-name" method="POST">
+        <label for="last-name">Last Name</label>
+        <input type="text" id="last-name" name="last_name" required />
+        <button type="submit">Update Last Name</button>
+      </form>
+    </div>
+
+    <!-- Social Insurance Number -->
+    <div class="form-section">
+      <form action="/update-employee/sin" method="POST">
+        <label for="sin">Social Insurance Number</label>
+        <input type="text" id="sin" name="sin" required />
+        <button type="submit">Update SIN</button>
+      </form>
+    </div>
+
+    <!-- Role -->
+    <div class="form-section">
+      <form action="/update-employee/role" method="POST">
+        <label for="role">Employee Role</label>
+        <input type="text" id="role" name="role" required />
+        <button type="submit">Update Role</button>
+      </form>
+    </div>
+
+    <!-- Location of Work -->
+    <div class="form-section">
+      <form action="/update-employee/location" method="POST">
+        <label for="location">Location of Work</label>
+        <input type="text" id="location" name="location" required />
+        <button type="submit">Update Location</button>
+      </form>
+    </div>
+
+    <!-- Email -->
+    <div class="form-section">
+      <form action="/update-employee/email" method="POST">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required />
+        <button type="submit">Update Email</button>
+      </form>
+    </div>
+    <script>
+        // Function to display the flash messages from query parameters
+        function displayMessage(type, message) {
+            const messageContainer = document.getElementById('message-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', type);
+            messageDiv.textContent = message;
+            messageContainer.appendChild(messageDiv);
+        }
+    
+        // Read the query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('success');
+        const errorMessage = urlParams.get('error');
+    
+        // Display success message if available
+        if (successMessage) {
+            displayMessage('success', successMessage);
+        }
+    
+        // Display error message if available
+        if (errorMessage) {
+            displayMessage('error', errorMessage);
+        }
+    </script>
+    <a href="/employee-dashboard" class="back-link">← Back to Dashboard</a>
+    <div class="button-group">
+        <a href="/client-dashboard">
+            <button class="btn btn-back">Back to Dashboard</button>
+        </a>
+    </div>
+  </div>
+
+</body>
+</html>

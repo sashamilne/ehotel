@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Reservation</title>
+  <link rel="stylesheet" href="css/reservation-styles.css"> <!-- Link to your stylesheet -->
+</head>
+
+<body>
+  <header>
+    <h1>Hotel Room Reservations</h1>
+    <p>Choose the perfect room for your stay!</p>
+  </header>
+
+  <main>
+    <div class="room-list">
+      <!-- Room items will be displayed here dynamically -->
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const params = new URLSearchParams(window.location.search);
+      const hotelId = params.get('hotel_id');
+  
+      if (!hotelId) {
+        document.querySelector('.room-list').innerHTML = '<p>No hotel selected.</p>';
+        return;
+      }
+  
+      fetch(`/api/rooms_by_hotelID/${hotelId}`)
+        .then(response => {
+          if (!response.ok) throw new Error('Failed to fetch rooms');
+          return response.json();
+        })
+        .then(data => {
+          const rooms = data.rooms; // Adjust this if your API response structure is different
+          const roomListContainer = document.querySelector('.room-list');
+          roomListContainer.innerHTML = ''; // Clear default
+  
+          if (!rooms.length) {
+            roomListContainer.innerHTML = '<p>No rooms available for this hotel.</p>';
+            return;
+          }
+  
+          rooms.forEach(room => {
+            const roomElement = document.createElement('div');
+            roomElement.classList.add('room-item');
+            roomElement.innerHTML = `
+              <h3>Room Type: ${room.room_type}</h3>
+              <p>Room Number: ${room.room_number}</p>
+              <p><strong>$${room.price}</strong> per night</p>
+              <button onclick="reserveRoom(${room.room_id})">Reserve</button>
+            `;
+            roomListContainer.appendChild(roomElement);
+          });
+        })
+        .catch(err => {
+          console.error('Error loading rooms:', err);
+          document.querySelector('.room-list').innerHTML = '<p>Error loading rooms.</p>';
+        });
+    });
+  
+    function reserveRoom(roomId) {
+      // Redirect to confirmation or reservation form
+      window.location.href = `/confirm-reservation.html?room_id=${roomId}`;
+    }
+  </script>
+</body>
+</html>

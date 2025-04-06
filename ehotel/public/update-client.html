@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Client Information</title>
+    <style>
+        /* Add some basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            margin-bottom: 15px;
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Update Your Information</h1>
+
+        <!-- Flash message container -->
+        <div id="message-container"></div>
+
+        <!-- Form for updating employee information -->
+        <form action="/update-client/first-name" method="POST">
+            <label for="first-name">First Name</label>
+            <input type="text" id="first-name" name="first_name" placeholder="Enter your first name" required>
+            <button type="submit">Update First Name</button>
+        </form>
+
+        <form action="/update-client/last-name" method="POST">
+            <label for="last-name">Last Name</label>
+            <input type="text" id="last-name" name="last_name" placeholder="Enter your last name" required>
+            <button type="submit">Update Last Name</button>
+        </form>
+
+        <form action="/update-client/email" method="POST">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <button type="submit">Update Email</button>
+        </form>
+
+        <!-- New form for updating SIN -->
+        <form action="/update-client/sin" method="POST">
+            <label for="sin">Social Insurance Number (SIN)</label>
+            <input type="text" id="sin" name="sin" placeholder="Enter your SIN" required>
+            <button type="submit">Update SIN</button>
+        </form>
+
+        <!-- New form for updating phone number -->
+        <form action="/update-client/phone-number" method="POST">
+            <label for="phone">Phone Number</label>
+            <input type="text" id="phone" name="phone" placeholder="Enter your phone number" required>
+            <button type="submit">Update Phone Number</button>
+        </form>
+
+        <div class="button-group">
+            <a href="/client-dashboard">
+                <button class="btn btn-back">Back to Dashboard</button>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        // Function to display the flash messages from query parameters
+        function displayMessage(type, message) {
+            const messageContainer = document.getElementById('message-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', type);
+            messageDiv.textContent = message;
+            messageContainer.appendChild(messageDiv);
+        }
+
+        // Read the query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('success');
+        const errorMessage = urlParams.get('error');
+
+        // Display success message if available
+        if (successMessage) {
+            displayMessage('success', successMessage);
+        }
+
+        // Display error message if available
+        if (errorMessage) {
+            displayMessage('error', errorMessage);
+        }
+    </script>
+
+</body>
+</html>
