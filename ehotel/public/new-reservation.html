@@ -1,119 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>View Reservations</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      background: white;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 800px;
-    }
-    h1 {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .reservation-list {
-      margin-bottom: 20px;
-    }
-    .reservation-item {
-      border-bottom: 1px solid #ddd;
-      padding: 15px 0;
-    }
-    .reservation-item h3 {
-      margin: 0;
-      font-size: 18px;
-    }
-    .reservation-item p {
-      margin: 5px 0;
-      font-size: 14px;
-      color: #555;
-    }
-    button {
-      padding: 10px 15px;
-      background-color: #007bff;
-      color: white;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Reservation</title>
+  <link rel="stylesheet" href="css/reservation-styles.css"> <!-- Link to your stylesheet -->
 </head>
+
 <body>
+  <header>
+    <h1>Hotel Room Reservations</h1>
+    <p>Choose the perfect room for your stay!</p>
+  </header>
 
-  <div class="container">
-    <h1>Your Reservations</h1>
-
-    <div class="reservation-list" id="reservation-list">
-      <!-- Reservations will be dynamically populated here -->
+  <main>
+    <div class="room-list">
+      <!-- Room items will be displayed here dynamically -->
     </div>
-
-    <a href="/client-dashboard">Back to Dashboard</a>
-  </div>
+  </main>
 
   <script>
-    // Fetch the user's reservations from the backend using the API endpoint
-    document.addEventListener('DOMContentLoaded', function() {
-      const reservationList = document.getElementById('reservation-list');
-
-          // Fetch reservations for the client
-          fetch(`/api/reservations-by-clientID`)
-            .then(response => response.json())
-            .then(data => {
-              // Check if there are any reservations
-              if (data.reservations && data.reservations.length > 0) {
-                data.reservations.forEach(reservation => {
-                  // Create a reservation item element for each reservation
-                  const reservationItem = document.createElement('div');
-                  reservationItem.classList.add('reservation-item');
-
-                  // Fill reservation details
-                  reservationItem.innerHTML = `
-                    <h3>Reservation ID: ${reservation.reservation_id}</h3>
-                    <p><strong>Hotel ID:</strong> ${reservation.hotel_id}</p>
-                    <p><strong>Room Number:</strong> ${reservation.room_number}</p>
-                    <p><strong>Check-in Date:</strong> ${new Date(reservation.check_in_date).toLocaleDateString()}</p>
-                    <p><strong>Check-out Date:</strong> ${new Date(reservation.check_out_date).toLocaleDateString()}</p>
-                    <button onclick="viewReservationDetails(${reservation.reservation_id})">View Details</button>
-                  `;
-
-                  reservationList.appendChild(reservationItem);
-                });
-              } else {
-                reservationList.innerHTML = '<p>No reservations found.</p>';
-              }
-            })
-            .catch(err => {
-              console.error('Error fetching reservations:', err);
-              reservationList.innerHTML = '<p>Failed to load reservations.</p>';
-            });
+    document.addEventListener('DOMContentLoaded', function () {
+      const params = new URLSearchParams(window.location.search);
+      const hotelId = params.get('hotel_id');
+  
+      if (!hotelId) {
+        document.querySelector('.room-list').innerHTML = '<p>No hotel selected.</p>';
+        return;
+      }
+  
+      fetch(`/api/rooms_by_hotelID/${hotelId}`)
+        .then(response => {
+          if (!response.ok) throw new Error('Failed to fetch rooms');
+          return response.json();
+        })
+        .then(data => {
+          const rooms = data.rooms; // Adjust this if your API response structure is different
+          const roomListContainer = document.querySelector('.room-list');
+          roomListContainer.innerHTML = ''; // Clear default
+  
+          if (!rooms.length) {
+            roomListContainer.innerHTML = '<p>No rooms available for this hotel.</p>';
+            return;
+          }
+  
+          rooms.forEach(room => {
+            const roomElement = document.createElement('div');
+            roomElement.classList.add('room-item');
+            roomElement.innerHTML = `
+              <h3>Room Type: ${room.room_type}</h3>
+              <p>Room Number: ${room.room_number}</p>
+              <p><strong>$${room.price}</strong> per night</p>
+              <button onclick="reserveRoom(${room.room_number}, ${hotelId})">Reserve</button>
+            `;
+            roomListContainer.appendChild(roomElement);
+          });
         })
         .catch(err => {
-          console.error('Error fetching user data:', err);
-          window.location.href = '/login'; // Redirect to login if there's an issue
+          console.error('Error loading rooms:', err);
+          document.querySelector('.room-list').innerHTML = '<p>Error loading rooms.</p>';
         });
-
-    // Function to view the details of a specific reservation
-    function viewReservationDetails(reservationId) {
-      // Redirect to a reservation details page or show a modal with the reservation details
-      window.location.href = `/reservation-details.html?reservation_id=${reservationId}`;
+    });
+  
+    function reserveRoom(roomId, hotelId) {
+      // Redirect to confirmation or reservation form
+      window.location.href = `/confirm-reservation.html?room_id=${roomId}&hotel_id=${hotelId}`;
     }
   </script>
 </body>
