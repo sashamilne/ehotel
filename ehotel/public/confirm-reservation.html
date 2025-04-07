@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Confirm Reservation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+    }
+    h1 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .details {
+      margin-bottom: 30px;
+    }
+    .details label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    .details input, .details select, .details textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    button {
+      padding: 12px 20px;
+      background-color: #28a745;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Confirm Your Reservation</h1>
+
+    <form action="/reservation/confirm-reservation" method="POST" class="details">
+      <label for="check-in">Check-in Date</label>
+      <input type="date" id="check-in" name="check_in" required>
+
+      <label for="check-out">Check-out Date</label>
+      <input type="date" id="check-out" name="check_out" required>
+
+      <label for="room-type">Room Type</label>
+      <input type="text" id="room-type" name="room_type" readonly>
+
+      <label for="guests">Room Number</label>
+      
+      <input type="number" id="room-number" name="room_number" readonly>
+
+      <input type="text" id="hotel-id" name="hotel_id" value="" hidden>
+
+
+      <button type="submit">Confirm Reservation</button>
+    </form>
+  </div>
+
+  <script>
+    // Load from query parameters
+    const params = new URLSearchParams(window.location.search);
+    const hotelId = params.get('hotel_id');
+    const roomId = params.get('room_id');
+    var validRoom = false;
+
+    // Fetch rooms for selected hotel
+    fetch(`/api/rooms_by_hotelID/${hotelId}`)
+      .then(response => response.json())
+      .then(data => {
+        const rooms = data.rooms; // assumes API returns { rooms: [...] }
+
+        rooms.forEach(room => {
+          if(room.room_number == roomId) {
+            document.getElementById('room-type').value = room.room_type;
+            document.getElementById('room-number').value = room.room_number;
+            validRoom = true;
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching rooms:', error);
+        roomListContainer.innerHTML = '<p>Failed to load rooms.</p>';
+      });
+      
+      document.querySelector('form').addEventListener('submit', function (e) {
+        const checkInDate = new Date(document.getElementById('check-in').value);
+        const checkOutDate = new Date(document.getElementById('check-out').value);
+        // 
+        document.querySelector('input[name="hotel_id"]').value = hotelId;
+
+        let valid = true;
+        
+        if (checkOutDate <= checkInDate) {
+            alert('Check-out date must be after check-in date.');
+            valid = false;
+        }
+        if(!validRoom) {
+            e.preventDefault(); // prevent form submission
+            alert('Invalid room selected.');
+            valid = false;
+        }
+        if (!valid) {
+            e.preventDefault(); // prevent form submission
+        }
+        
+});
+  </script>
+
+</body>
+</html>

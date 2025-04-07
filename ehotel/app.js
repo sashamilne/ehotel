@@ -4,6 +4,7 @@ const pool = require('./db')
 const session = require("express-session")
 const updateEmployeeRoutes = require('./routes/employee');
 const updateClientRoutes = require('./routes/client');
+const reservationRoutes = require('./routes/reservation');
 const apiRoutes = require('./routes/api');
 const flash = require('connect-flash');
 
@@ -32,6 +33,7 @@ app.set('views', path.join(__dirname, 'views'));  // Where your EJS files are lo
 app.use('/update-employee', updateEmployeeRoutes);
 app.use('/update-client', updateClientRoutes);
 app.use('/api', apiRoutes);
+app.use('/reservation', reservationRoutes);
 
 
 app.get('/employee-login', (req, res) => {

@@ -73,8 +73,9 @@
     document.addEventListener('DOMContentLoaded', function() {
       const reservationList = document.getElementById('reservation-list');
 
+
           // Fetch reservations for the client
-          fetch(`/api/reservations-by-clientID`)
+          fetch(`/api/reservations-by-clientID/`)
             .then(response => response.json())
             .then(data => {
               // Check if there are any reservations
@@ -91,7 +92,6 @@
                     <p><strong>Room Number:</strong> ${reservation.room_number}</p>
                     <p><strong>Check-in Date:</strong> ${new Date(reservation.check_in_date).toLocaleDateString()}</p>
                     <p><strong>Check-out Date:</strong> ${new Date(reservation.check_out_date).toLocaleDateString()}</p>
-                    <button onclick="viewReservationDetails(${reservation.reservation_id})">View Details</button>
                   `;
 
                   reservationList.appendChild(reservationItem);
@@ -105,10 +105,7 @@
               reservationList.innerHTML = '<p>Failed to load reservations.</p>';
             });
         })
-        .catch(err => {
-          console.error('Error fetching user data:', err);
-          window.location.href = '/login'; // Redirect to login if there's an issue
-        });
+
 
     // Function to view the details of a specific reservation
     function viewReservationDetails(reservationId) {

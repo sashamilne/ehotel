@@ -37,10 +37,12 @@ router.get('/hotels_by_chainID/:chainId', async (req, res) => {
 
 // Route to fetch rooms by hotel ID
 router.get('/rooms_by_hotelID/:hotelId', async (req, res) => {
+
     const { hotelId } = req.params;
     try {
         const result = await pool.query('SELECT * FROM ehotelschema.room WHERE hotel_id = $1', [hotelId]);
         const rooms = result.rows;
+        console.log("Rooms:", rooms); // Log the rooms for debugging
 
         // Send the rooms as a JSON response
         res.json({ rooms });
@@ -52,11 +54,12 @@ router.get('/rooms_by_hotelID/:hotelId', async (req, res) => {
 
 );
 
-router.get('/reservations-by-clientID/:clientId', async (req, res) => {
-    const { clientId } = req.params;
+router.get('/reservations-by-clientID', async (req, res) => {
+    const clientId = req.session.user.SIN; // Assuming the client ID is stored in the session
     try {
         const result = await pool.query('SELECT * FROM ehotelschema.reservation WHERE sin = $1', [clientId]);
         const reservations = result.rows;
+        console.log("Reservations:", reservations); // Log the reservations for debugging
 
         // Send the reservations as a JSON response
         res.json({ reservations });
@@ -66,6 +69,7 @@ router.get('/reservations-by-clientID/:clientId', async (req, res) => {
     }
 }
 );
+
 
   
 
