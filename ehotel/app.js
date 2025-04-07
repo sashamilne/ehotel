@@ -1,47 +1,98 @@
 const express = require('express');
 const path = require('path');
-const pool = require('./db')
-const session = require("express-session")
+const pool = require('./db');
+const session = require("express-session");
+const flash = require('connect-flash');
+
+// Import routes
 const updateEmployeeRoutes = require('./routes/employee');
 const updateClientRoutes = require('./routes/client');
 const reservationRoutes = require('./routes/reservation');
 const apiRoutes = require('./routes/api');
-const flash = require('connect-flash');
-
 
 const app = express();
 
-
-// Serve static files from the "public" directory
+// Middleware setup
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.urlencoded({ extended: true })); // to handle form data
-app.use(express.json()); // to handle JSON data
-app.use(flash());   // Middleware for flash messages
-// Middleware: Setup session before any routes
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(flash());
+
 app.use(session({
-    secret: process.env.SESSION_SECRET, // Replace with a strong secret in production
-    resave: false, 
-    saveUninitialized: false, // Don't save session if it's not modified
-    cookie: { secure: false } // For development, use true in production with HTTPS
-  }));
+  secret: process.env.SESSION_SECRET || 'secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Set true only in production with HTTPS
+}));
 
-  // Set up EJS as the view engine
+// View engine setup (for potential future use with EJS)
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));  // Where your EJS files are located
+app.set('views', path.join(__dirname, 'views'));
 
-// add all the routes
+// Routes
 app.use('/update-employee', updateEmployeeRoutes);
 app.use('/update-client', updateClientRoutes);
 app.use('/api', apiRoutes);
 app.use('/reservation', reservationRoutes);
 
+// Employee Sign Up
+app.get('/employee-signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'employee-signup.html'));
+});
 
+app.post('/employee-signup', async (req, res) => {
+  const { sin, first_name, last_name, email } = req.body;
+  try {
+    await pool.query(
+      `INSERT INTO ehotelschema.employee (sin, first_name, last_name, email, employee_role, works_at, phone_number) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        sin,
+        first_name,
+        last_name,
+        email,
+        'staff', // default role
+        1,       // placeholder hotel_id
+        '000-000-0000'
+      ]
+    );
+    res.redirect('/employee-login');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Employee sign-up failed.');
+  }
+});
+
+
+// Client Sign Up
+app.get('/client-signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'client-signup.html'));
+});
+
+app.post('/client-signup', async (req, res) => {
+  const { sin, first_name, last_name, email } = req.body;
+  try {
+    await pool.query(
+      `INSERT INTO ehotelschema.client (sin, first_name, last_name, email, registration_date, phone_number) 
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [sin, first_name, last_name, email, new Date(), "000-000-0000"]
+    );
+    
+    res.redirect('/client-login');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Client sign-up failed.');
+  }
+});
+
+
+// Employee Login
 app.get('/employee-login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'employee-login.html'));
-  });
+  res.sendFile(path.join(__dirname, 'public', 'employee-login.html'));
+});
 
 app.post('/employee-login', async (req, res) => {
-  const {email, sin } = req.body;
+  const { email, sin } = req.body;
 
   try {
     const result = await pool.query(
@@ -54,19 +105,17 @@ app.post('/employee-login', async (req, res) => {
       return res.status(401).send('No employee found with that email.');
     }
 
-    // For simplicity, plaintext password comparison (replace with bcrypt in production)
     if (user.sin != sin) {
-      return res.status(401).send('Incorrect password.');
+      return res.status(401).send('Incorrect SIN.');
     }
 
-    // Store user info in the session
     req.session.user = {
-        SIN: user.sin,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        role: "employee"
-      };
+      SIN: user.sin,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      role: "employee"
+    };
 
     res.redirect('/employee-dashboard');
   } catch (err) {
@@ -76,18 +125,19 @@ app.post('/employee-login', async (req, res) => {
 });
 
 app.get('/employee-dashboard', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).send('Please log in first.');
-    }
-    res.sendFile(path.join(__dirname, 'public', 'employee-dashboard.html'));
-  });
+  if (!req.session.user || req.session.user.role !== 'employee') {
+    return res.status(401).send('Please log in as an employee.');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'employee-dashboard.html'));
+});
 
-  app.get('/client-login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'client-login.html'));
-  });
+// Client Login
+app.get('/client-login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'client-login.html'));
+});
 
 app.post('/client-login', async (req, res) => {
-  const {email, sin } = req.body;
+  const { email, sin } = req.body;
 
   try {
     const result = await pool.query(
@@ -96,23 +146,23 @@ app.post('/client-login', async (req, res) => {
     );
 
     const user = result.rows[0];
-    
+
     if (!user) {
-      return res.status(401).send('No employee found with that email.');
+      return res.status(401).send('No client found with that email.');
     }
 
     if (user.sin != sin) {
-      return res.status(401).send('Incorrect password.');
+      return res.status(401).send('Incorrect SIN.');
     }
-    // Store user info in the session
+
     req.session.user = {
-        SIN: user.sin,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        role: "client"
-      };
-    
+      SIN: user.sin,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      role: "client"
+    };
+
     res.redirect('/client-dashboard');
   } catch (err) {
     console.error(err);
@@ -121,25 +171,28 @@ app.post('/client-login', async (req, res) => {
 });
 
 app.get('/client-dashboard', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).send('Please log in first.');
-    }
+  if (!req.session.user || req.session.user.role !== 'client') {
+    return res.status(401).send('Please log in as a client.');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'client-dashboard.html'));
+});
 
-    res.sendFile(path.join(__dirname, 'public', 'client-dashboard.html'));
-  });
-
-  // POST request to handle logout
+// Logout
 app.get('/logout', (req, res) => {
-    // Destroy the session to log the user out
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).send('Could not log out.');
-      }
-      // Redirect to login page after logout
-      res.redirect('/');
-    });
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).send('Could not log out.');
+    }
+    res.redirect('/');
   });
+});
 
+// Home Route
+app.get('/', (req, res) => {
+  res.send('<h1>Welcome to eHotel</h1><p><a href="/employee-login">Employee Login</a> | <a href="/client-login">Client Login</a></p>');
+});
+
+// Server
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
